@@ -29,7 +29,7 @@ Configure a WebHook URL to whereever the server is listening.
 * **port**: the port to listen on, defaults to `3420`
 * **keep**: if true, temporary files are not deleted, defaults to `false`. Mostly only for debugging purposes.
 * **tasks**: relations between repositories and shell commands (e.g. `{repo1:'cmd1', repo2:['cmd2a','cmd2b','cmd2c']}`)
-* **cmdshell**: the command-line interpreter to be used, defaults to `/bin/sh`
+* **cmdshell**: the command-line interpreter to be used, defaults to `/bin/bash`
 
 Example config file with task definitions(./config.js):
 
