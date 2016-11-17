@@ -87,6 +87,7 @@ function readConfigFile(pathes, file) {
       ret = parse(data);
       break;
     } catch(err) {
+      console.log(err);
     }
   }
   return ret;
@@ -143,6 +144,7 @@ function executeShellCmds(self, address, data) {
         return;
       }
       self.logger.info('File created: ' + fname);
+      console.log(self.cmdshell, [ fname ], { cwd:path, env:process.env });
       execFile(self.cmdshell, [ fname ], { cwd:path, env:process.env },
         function (err, stdout, stderr) {
         if (err) {

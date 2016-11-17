@@ -2,19 +2,24 @@
 
 This is an easy to use nodeJS based web hook for GitLab.
 
-## To Install:
+## Quick start
+
+**1.Download this project**
 ```
-npm install gitlabhook
+git clone https://github.com/cangzhen/node-gitlab-hook
+```
+**2.Start the `./app.js`**
+```
+cd node-gitlab-hook
+npm install
+node ./app.js
 ```
 
-## To Use:
-
-```javascript
-var gitlabhook = require('gitlabhook');
-var gitlab = gitlabhook({/* options */} [, callback]);
-
-gitlab.listen();
+**3.Mock the request from gitlab**
 ```
+node ./test/gitlab.client.js
+```
+
 
 Configure a WebHook URL to whereever the server is listening.
 
@@ -22,35 +27,41 @@ Configure a WebHook URL to whereever the server is listening.
 
 * **host**: the host to listen on, defaults to `0.0.0.0`
 * **port**: the port to listen on, defaults to `3420`
-* **configFile**: the json config file. May located at **configPathes**, defaults to `gitlabhook.conf`
-* **configPathes**: the search pathes for **configFile**, defaults to `['/etc/gitlabhook/', '/usr/local/etc/gitlabhook/', '.']`
 * **keep**: if true, temporary files are not deleted, defaults to `false`. Mostly only for debugging purposes.
-* **logger**: an optional instance of a logger that supports the "info" and "error" methods and one parameter for data (like console), default is to not log (`logger:{info:function(s){}, error:function(s){}}`). Mostly only for debugging purposes.
 * **tasks**: relations between repositories and shell commands (e.g. `{repo1:'cmd1', repo2:['cmd2a','cmd2b','cmd2c']}`)
 * **cmdshell**: the command-line interpreter to be used, defaults to `/bin/sh`
 
-The config file will be ignored if a callback function is declared.
-
-Example config file with task definitions:
+Example config file with task definitions(./config.js):
 
 ```javascript
-{
-  "tasks": {
-    "myRepo": "/usr/local/bin/myDeploy %g",
-         "*": ["echo 'GitLab Server %s'",
-               "echo 'Repository: %r'",
-               "echo 'Event: %k'",
-               "echo 'User: %u'",
-               "echo 'Branch: %b'",
-               "echo 'Git Url: %g'",
-               "echo 'Last Commit: %i'",
-               "echo '\tMessage: %m'",
-               "echo '\tTime: %t'"]
-  },
-  "keep":false,
-  "logger": false,
-  "cmdshell":"/bin/bash"
+module.exports = {
+    tasks: {
+        "*": [
+            "echo ================trigger by webhook event=============",
+            "echo 'GitLab Host: %s'",
+            "echo 'Repository : %r'",
+            "echo 'Event      : %k'",
+            "echo 'User       : %u'",
+            "echo 'Branch     : %b'",
+            "echo 'Git Url    : %g'",
+            "echo 'Last Commit: %i'",
+            "echo '       Time: %t'",
+            "echo '    Message: %m'",
+        ],
+
+        "myRepo": "/usr/local/bin/myDeploy %g",
+        
+        //判断分支可以通过shell的正则表达式完成
+        "myRepo2": [
+            "if [[ '%b' =~ dev ]]; then echo 'this is a dev branch';fi",
+            "if [[ '%b' =~ master ]]; then echo 'this is master branch ';fi"
+         ],
+    },
+    keep: true,//是否保留执行目录和文件
+    port: 3420,
+    host: '0.0.0.0',
 }
+
 ```
 The `*` matches any tasks.
 
@@ -67,15 +78,13 @@ The place holders are:
 * `%t`: timestamp of the last commit
 * `%m`: message of the last commit
 
-The file `gitlabhook-server.js` shows an example GitLab Hook server listen at port 3420.
+The file `app.js` shows an example GitLab Hook server listen at port 3420.
 
-## Installation hints for Linux
-
-The file `gitlabhook.service` is intended to use as a systemd sercvice. The `Makefile` helps to create an rpm archive for a systemd based OS. Call
+## Start script for pm2
+The file `start.sh` shows an example started by pm2
 ```
-make rpm
+./start.sh
 ```
-
 # License
 
 MIT
